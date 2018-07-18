@@ -91,18 +91,18 @@ class TurtleBot:
         goal_pose.y = pose_y
         goal_pose.z = 0
 
-        # resp = self.rotate_to_goal(goal_pose, direction)
-        #
-        # while not resp:
-        #     time.sleep(1)
-        #
-        # # get previous angle to goal moving
-        # angle = resp[0]
-        # clockwise = resp[1]
-        # if clockwise == True:
-        #     clockwise = False
-        # else:
-        #     clockwise = True
+        resp = self.rotate_to_goal(goal_pose, direction)
+
+        while not resp:
+            time.sleep(1)
+
+        # get previous angle to goal moving
+        angle = resp[0]
+        clockwise = resp[1]
+        if clockwise == True:
+            clockwise = False
+        else:
+            clockwise = True
 
         vel_msg = Twist()
 
@@ -125,7 +125,7 @@ class TurtleBot:
                 evcl = self.euclidean_cur_distance(goal_pose, cur_pose_x, cur_pose_y)
             # Loop to move the turtle in an specified distance
             while (current_distance < evcl):
-                # print('i am in {0},{1}'.format(self.pose.x, self.pose.y))
+
                 # Publish the velocity
                 self.velocity_publisher.publish(vel_msg)
                 # Takes actual time to velocity calculus
@@ -278,7 +278,8 @@ class TurtleBot:
         else:
             clockwise = True
 
-        angle = abs(angle) + 16.0
+        angle = abs(angle) + 13.0
+        # angle = abs(angle)
 
         # Converting from angles to radians
         angular_speed = speed * 2 * PI / 360
@@ -286,7 +287,6 @@ class TurtleBot:
 
         return self.rudder(relative_angle, angular_speed, clockwise)
 
-        # rospy.spin()
 
     def pickup(self, act_form, prev_direct):
 
@@ -302,11 +302,6 @@ class TurtleBot:
         env = gym.make("crumb-pick-v0")
         TRPOagent.grasp(env)
         TRPOagent.pick(env)
-
-
-        if resp:
-            print(self.middle)
-            #print('x is {0}, y is {1} and z is {2}'.format(self.middle[0], self.middle[1], self.middle[2]))
 
         return 'yes'
 
@@ -329,66 +324,45 @@ class TurtleBot:
 
         return 'yes'
 
+class Processer:
+    # gazebo coords and koef of sign blow
+    def __init__(self, gazX, gazY, koef):
+        self.mapX = gazX*koef #200
+        self.mapY = gazY*koef #200
+        self.koef = koef #20
 
-    def handle_action(self, req):
-        if req.action:
-            print(req.action)
+    def to_gazebo(self, x, y): #
+        if x < self.mapX // 2 and y <self.mapY // 2:
+            gaz_y = (self.mapY // 2 - y) / self.koef * 2
+            gaz_x = (self.mapX // 2 - x) / self.koef * 2 * (-1)    # because in 2 quadro
+        elif x > self.mapX // 2 and y <self.mapY // 2: # 1 quadro
+            gaz_y = (self.mapY // 2 - y) / self.koef * 2
+            gaz_x = (x - self.mapX // 2) / self.koef * 2
+        elif x > self.mapX // 2 and y > self.mapY // 2: # 4 quadro
+            gaz_y = (y - self.mapY // 2) / self.koef * 2 * (-1)
+            gaz_x = (x - self.mapX // 2) / self.koef * 2
+        else: # 3 quadro
+            gaz_y = (y - self.mapY // 2) / self.koef * 2 * (-1)
+            gaz_x = (self.mapX // 2 - x) / self.koef * 2 * (-1)
+            if gaz_x == 0.0:
+                gaz_x *= -1
+            if gaz_y == 0.0:
+                gaz_y *= -1
 
-        act_form = [a.strip() for a in req.action.split(";")]
+        return gaz_x, gaz_y
 
-        resp = 'No'
+    def to_signs(self, x, y): # 2.5 2
+        if x > 0.0 and y > 0.0: # 1 quadro
+            sig_y = self.mapY //2 - y*self.koef//2
+            sig_x = self.mapX //2 + x*self.koef//2
+        elif x > 0.0 and y < 0.0: # 4 quadro
+            sig_y = self.mapY //2 + abs(y)*self.koef//2
+            sig_x = self.mapX //2 + x*self.koef//2
+        elif x<0.0 and y <0.0: # 3 quadro
+            sig_y = self.mapY //2 + abs(y)*self.koef//2
+            sig_x = self.mapX //2 - abs(x)*self.koef//2
+        else: # 2 quadro
+            sig_y = self.mapY //2 - y*self.koef//2
+            sig_x = self.mapX //2 - abs(x)*self.koef//2
+        return sig_x, sig_y
 
-        try:
-            global prev_directions
-            global plan
-            plan.append(act_form)
-            if not prev_directions and plan[-1][0] != 'move':
-                #TODO get task in client side and send it to server
-                path = os.getcwd() + '/src/crumb_planner/scripts/benchmarks/spatial/task1.json'
-                with open(path) as data_file1:
-                    start_map = json.load(data_file1)
-                prev_direct = start_map["start"]["agent-orientation"]
-                prev_directions.append(prev_direct)
-            elif len(plan) == 1 and plan[-1][0] == 'move':
-                prev_directions.append(plan[-1][2])
-                prev_direct = prev_directions[-1]
-            else:
-                prev_direct = prev_directions[-1]
-
-
-            if  'move' in act_form[0]:
-                string_point = act_form[1]
-                gp_x = float(string_point.split(",")[0])
-                gp_y = float(string_point.split(",")[1])
-                resp = self.move(gp_x, gp_y, prev_direct)
-            elif 'rotate' in act_form[0]:
-                prev_direct = prev_directions[-1]
-                prev_directions.append(act_form[2])
-                resp = self.rotate(act_form[2], prev_direct)
-            elif 'pick-up' in act_form[0]:
-                prev_direct = prev_directions[-1]
-                resp = self.pickup(act_form, prev_direct)
-            elif 'put-down' in act_form[0]:
-                prev_direct = prev_directions[-1]
-                resp = self.putdown(act_form, prev_direct)
-        except rospy.ROSInterruptException:
-            pass
-        if resp:
-            print("response is " + resp)
-        return SendOneStringResponse(resp)
-
-
-def move_server():
-    rospy.init_node('send_one_string_server')
-
-    empty_call = rospy.ServiceProxy("/gazebo/unpause_physics", Empty)
-    empty_call()
-    x = TurtleBot()
-    s = rospy.Service('send_one_string', SendOneString, x.handle_action)
-
-    print("Ready to move.")
-    rospy.spin()
-
-
-if __name__ == "__main__":
-    move_server()

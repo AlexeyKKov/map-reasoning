@@ -6,9 +6,8 @@ from grounding import pddl_grounding
 from grounding import json_grounding
 from search.mapsearch import map_search
 from connection.messagen import Tmessage
-from .sign_task import Task
-from gazebo_adapter.ros_connector.processer import Processer
-from gazebo_adapter.gazebo_tools import TurtleBot
+from grounding.sign_task import Task
+from gazebo_adapter.gazebo_tools import TurtleBot, Processer
 
 #ROS libs
 import rospy

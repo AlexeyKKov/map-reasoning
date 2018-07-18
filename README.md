@@ -1,4 +1,4 @@
-<h2><a id="Multiagent_planner_based_on_sign_world_model_0"></a>Multiagent planner based on sign world model.</h2>
+<h2>Multiagent planner based on sign world model.</h2>
 <hr>
 <p><strong>To start planner</strong>:<br>
 Start <code>mapplanner.py</code> with arguments</p>
@@ -32,7 +32,7 @@ python 3.5+</p>
 If Gazebo visualization for spatial tasks is needed:
 
 1. Install ROS and Gazebo for python3:
-
+<i>
 sudo apt-get install ros-kinetic-desktop-full <br>
 sudo apt-get install ros-kinetic-turtlebot ros-kinetic-turtlebot-apps
 sudo apt-get install ros-kinetic-turtlebot-interactions ros-kinetic-turtlebot-simulator <br>
@@ -45,34 +45,46 @@ sudo apt-get install ros-kinetic-joint-state-controller <br>
 sudo apt-get install ros-kinetic-gazebo-ros-control <br>
 sudo apt-get install python3-yaml <br>
 sudo pip3 install rospkg catkin_pkg <br>
-
+</i>
 2. Install Crumb project:
 
-https://github.com/CRUMBproject
+<i>https://github.com/CRUMBproject</i>
 
-3. Install Theano and Lasagne:
+3. Move the current project to:
 
-sudo pip3 install --upgrade https://github.com/Theano/Theano/archive/master.zip <br>
-sudo pip3 install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip <br>
+<i>crumb/src</i>
 
-4. Install OpenAI gym:
+4. Build Crumb:
 
-sudo pip3 install gym
+in /crumb directory: <i>catkin_make</i>
 
-5. Install gym_crumb:
+5. Install Theano and Lasagne:
 
-https://github.com/ermekaitygulov/gym-crumb.git
+<i>sudo pip3 install --upgrade https://github.com/Theano/Theano/archive/master.zip</i> <br>
+<i>sudo pip3 install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip</i> <br>
 
-6. Change pick_place.world file
+6. Install OpenAI gym:
+
+<i>sudo pip3 install gym</i>
+
+7. Install gym_crumb:
+
+<i>https://github.com/ermekaitygulov/gym-crumb.git</i>
+
+8. Change pick_place.world file
 in <br>
-crumb/src/ROS/crumb/crumb_gazebo/worlds/ <br>
+<i>crumb/src/ROS/crumb/crumb_gazebo/worlds/ <br><i>
 to <br>
-pick_place.world in benchmarks/spatial/
+<i>pick_place.world</i> in benchmarks/spatial/
 
-7. Start Gazebo with crumb_gazebo module:
+9. Start Gazebo with crumb_gazebo module:
 
-roslaunch crumb_gazebo crumb_pick_place.launch
+In terminal:
 
-8. Start mapplanner with spatial task and key -g
+cd ~/crumb </br>
+source devel/setup.bash </br>
+<i>roslaunch crumb_gazebo crumb_pick_place.launch</i>
 
-benchmarks/spatial/ 1 -g
+10. Start mapplanner with spatial task and key -g
+
+<i>benchmarks/spatial/ 1 -g</i>

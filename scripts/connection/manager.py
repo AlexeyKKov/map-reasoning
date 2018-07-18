@@ -1,4 +1,4 @@
-from grounding.agent_grounding import Agent
+from connection.agent_grounding import Agent
 from multiprocessing import Pool
 from connection.messagen import reconstructor
 import logging
