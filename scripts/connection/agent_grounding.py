@@ -55,6 +55,7 @@ class Agent:
         empty_call()
         tb = TurtleBot()
         prev_directions = []
+        prev_poses = []
 
         for action in plan_to_gazebo:
             logging.info('Trying to implement action {0}'.format(action[0]))
@@ -67,9 +68,13 @@ class Agent:
                     prev_direct = prev_directions[-1]
                 else:
                     prev_direct = prev_directions[-1]
+                if not prev_poses:
+                    prev_poses.append((0.0, 0.0))
+                else:
+                    prev_poses.append((action[1], action[2]))
 
                 if  'move' in action[0]:
-                    resp = tb.move(action[1], action[2], prev_direct)
+                    resp = tb.move(action[1], action[2], prev_direct, prev_poses[-1][0], prev_poses[-1][1])
                     if not resp:
                         raise Exception('Agent {0} can not implement a move action'.format(self.name))
                 elif 'rotate' in action[0]:

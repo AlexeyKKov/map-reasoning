@@ -20,6 +20,7 @@ from gazebo_adapter.agent_TRPO import TRPOAgent
 import gym
 import gym_crumb
 import logging
+from math import pow
 
 prev_directions = []
 plan = []
@@ -91,18 +92,10 @@ class TurtleBot:
         goal_pose.y = pose_y
         goal_pose.z = 0
 
-        resp = self.rotate_to_goal(goal_pose, direction)
+        resp = self.rotate_to_goal(goal_pose, direction, cur_pose_x, cur_pose_y)
 
         while not resp:
             time.sleep(1)
-
-        # get previous angle to goal moving
-        angle = resp[0]
-        clockwise = resp[1]
-        if clockwise == True:
-            clockwise = False
-        else:
-            clockwise = True
 
         vel_msg = Twist()
 
@@ -142,45 +135,47 @@ class TurtleBot:
         # If we press control + C, the node will stop.
         rospy.spin()
 
-    def rotate_to_goal(self, goal_pose, direction):
+    def rotate_to_goal(self, goal_pose, direction, cur_pose_x=None, cur_pose_y=None):
         print('rotating to goal!')
-        # hypotenuse = self.euclidean_distance(goal_pose)
+        if not cur_pose_x and not cur_pose_y:
+            cur_pose_x = self.pose.x
+            cur_pose_y = self.pose.y
 
-        if goal_pose.x >= self.pose.x and goal_pose.y >= self.pose.y:
-            if goal_pose.x > goal_pose.y:
+        if goal_pose.x >= cur_pose_x and goal_pose.y >= cur_pose_y:
+            if sqrt(pow((goal_pose.x-cur_pose_x), 2)) > sqrt(pow((goal_pose.y - cur_pose_y), 2)):
                 new_dir = 'right'
                 clockwise = False
             else:
                 new_dir = 'above'
                 clockwise = False
-        elif goal_pose.x <= self.pose.x and goal_pose.y >= self.pose.y:
-            if abs(goal_pose.x) > abs(goal_pose.y):
+        elif goal_pose.x <= cur_pose_x and goal_pose.y >= cur_pose_y:
+            if sqrt(pow((cur_pose_x - goal_pose.x), 2)) > sqrt(pow((goal_pose.y - cur_pose_y), 2)):
                 new_dir = 'left'
                 clockwise = True
             else:
                 new_dir = 'above'
                 clockwise = False
-        elif goal_pose.x >= self.pose.x and goal_pose.y <= self.pose.y:
-            if abs(goal_pose.x) > abs(goal_pose.y):
+        elif goal_pose.x >= cur_pose_x and goal_pose.y <= cur_pose_y:
+            if sqrt(pow((goal_pose.x-cur_pose_x), 2)) > sqrt(pow((cur_pose_y - goal_pose.y), 2)):
                 new_dir = 'right'
                 clockwise = True
             else:
                 new_dir = 'below'
                 clockwise = False
         else:
-            if abs(goal_pose.x) > abs(goal_pose.y):
+            if sqrt(pow((goal_pose.x-cur_pose_x), 2)) > sqrt(pow((cur_pose_y - goal_pose.y), 2)):
                 new_dir = 'left'
                 clockwise = False
             else:
                 new_dir = 'below'
                 clockwise = True
 
-        if abs(goal_pose.x) - abs(self.pose.x) > abs(goal_pose.y) - abs(self.pose.y):
-            nearest = abs(abs(self.pose.x) - abs(goal_pose.x))
-            other = abs(abs(self.pose.y) - abs(goal_pose.y))
+        if abs(goal_pose.x) - abs(cur_pose_x) > abs(goal_pose.y) - abs(cur_pose_y):
+            nearest = abs(abs(cur_pose_x) - abs(goal_pose.x))
+            other = abs(abs(cur_pose_y) - abs(goal_pose.y))
         else:
-            nearest = abs(abs(self.pose.y) - abs(goal_pose.y))
-            other = abs(abs(self.pose.x) - abs(goal_pose.x))
+            nearest = abs(abs(cur_pose_y) - abs(goal_pose.y))
+            other = abs(abs(cur_pose_x) - abs(goal_pose.x))
 
         angle = atan(other / nearest)
         change_dir = False
@@ -249,9 +244,6 @@ class TurtleBot:
         # t0 = self.time
         current_angle = 0
 
-        # print('cur start ang is {0}'.format(current_angle))
-        # print('odom angle start %s' % self.__angle)
-
         while (current_angle < relative_angle):
             self.velocity_publisher.publish(vel_msg)
             t1 = rospy.Time.now().to_sec()
@@ -278,7 +270,7 @@ class TurtleBot:
         else:
             clockwise = True
 
-        angle = abs(angle) + 13.0
+        angle = abs(angle) + 18.0
         # angle = abs(angle)
 
         # Converting from angles to radians
@@ -292,7 +284,7 @@ class TurtleBot:
 
         cp_x = act_form[1]
         cp_y = act_form[2]
-        modified = cp_y+ cp_x
+        modified = round(cp_y+ cp_x - 0.4, 2)
         resp = self.move(cp_x, modified, prev_direct, cp_x, cp_y)
 
         new_env = gym.make("crumb-synthetic-v0")
@@ -316,11 +308,6 @@ class TurtleBot:
         TRPOagent.net.Loadmodel()
         env = gym.make("crumb-pick-v0")
         TRPOagent.putdown(env)
-
-
-        if resp:
-            print(self.middle)
-            #print('x is {0}, y is {1} and z is {2}'.format(self.middle[0], self.middle[1], self.middle[2]))
 
         return 'yes'
 

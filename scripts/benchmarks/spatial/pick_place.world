@@ -81,7 +81,7 @@
     </spherical_coordinates>
     <model name='unit_box_1'>
       <static>1</static>
-      <pose>6.03826 6.40017 0 -0 0</pose>
+      <pose>6.03826 6.40017 0.203548 4.03897e-28 -3e-06 1e-06</pose>
       <link name='link_box_1'>
         <inertial>
           <mass>1</mass>

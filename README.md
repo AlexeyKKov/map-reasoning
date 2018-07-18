@@ -45,7 +45,7 @@ sudo apt-get install ros-kinetic-joint-state-controller <br>
 sudo apt-get install ros-kinetic-gazebo-ros-control <br>
 sudo apt-get install python3-yaml <br>
 sudo pip3 install rospkg catkin_pkg <br>
-</i>
+</i><br>
 2. Install Crumb project:
 
 <i>https://github.com/CRUMBproject</i>
