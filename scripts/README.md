@@ -31,48 +31,34 @@ python 3.5+</p>
 
 If Gazebo visualization for spatial tasks is needed:
 
-1. Install ROS and Gazebo for python3:
+1. Install Theano and Lasagne:
 
-sudo apt-get install ros-kinetic-desktop-full <br>
-sudo apt-get install ros-kinetic-turtlebot ros-kinetic-turtlebot-apps
-sudo apt-get install ros-kinetic-turtlebot-interactions ros-kinetic-turtlebot-simulator <br>
-sudo apt-get install ros-kinetic-kobuki-ftdi ros-kinetic-ar-track-alvar-msgs <br>
-sudo apt-get install ros-kinetic-position-controllers <br>
-sudo apt-get install ros-kinetic-controller-manager <br>
-sudo apt-get install ros-kinetic-position-controllers <br>
-sudo apt-get install ros-kinetic-effort-controllers <br>
-sudo apt-get install ros-kinetic-joint-state-controller <br>
-sudo apt-get install ros-kinetic-gazebo-ros-control <br>
-sudo apt-get install python3-yaml <br>
-sudo pip3 install rospkg catkin_pkg <br>
+sudo pip3 install --upgrade https://github.com/Theano/Theano/archive/master.zip
+sudo pip3 install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip
 
-2. Install Crumb project:
-
-https://github.com/CRUMBproject
-
-3. Install Theano and Lasagne:
-
-sudo pip3 install --upgrade https://github.com/Theano/Theano/archive/master.zip <br>
-sudo pip3 install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip <br>
-
-4. Install OpenAI gym:
+2. Install OpenAI gym:
 
 sudo pip3 install gym
 
-5. Install gym_crumb:
+3. Install gym_crumb:
 
 https://github.com/ermekaitygulov/gym-crumb.git
 
-6. Change pick_place.world file
-in <br>
-crumb/src/ROS/crumb/crumb_gazebo/worlds/ <br>
-to <br>
-pick_place.world in benchmarks/spatial/
+4. Install ROS and Gazebo for python3:
 
-7. Start Gazebo with crumb_gazebo module:
+sudo apt-get install ros-kinetic-desktop-full
+sudo apt-get install ros-kinetic-turtlebot ros-kinetic-turtlebot-apps
+sudo apt-get install ros-kinetic-turtlebot-interactions ros-kinetic-turtlebot-simulator
+sudo apt-get install ros-kinetic-kobuki-ftdi ros-kinetic-ar-track-alvar-msgs
+sudo apt-get install ros-kinetic-position-controllers
+sudo apt-get install ros-kinetic-controller-manager
+sudo apt-get install ros-kinetic-position-controllers
+sudo apt-get install ros-kinetic-effort-controllers
+sudo apt-get install ros-kinetic-joint-state-controller
+sudo apt-get install ros-kinetic-gazebo-ros-control
+sudo apt-get install python3-yaml
+sudo pip3 install rospkg catkin_pkg
 
-roslaunch crumb_gazebo crumb_pick_place.launch
+5. Start Gazebo
 
-8. Start mapplanner with spatial task and key -g
-
-benchmarks/spatial/ 1 -g
+5. Start mover_server, start mapplanner with spatial task
