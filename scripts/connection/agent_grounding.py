@@ -79,7 +79,7 @@ class Agent:
                         raise Exception('Agent {0} can not implement a move action'.format(self.name))
                 elif 'rotate' in action[0]:
                     prev_directions.append(action[3][1:])
-                    resp = tb.rotate(action[3][1:], prev_direct)
+                    resp = tb.rotate(action, prev_direct, prev_poses)
                     if not resp:
                         raise Exception('Agent {0} can not implement a rotate action'.format(self.name))
                 elif 'pick-up' in action[0]:

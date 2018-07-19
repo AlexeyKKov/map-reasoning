@@ -21,6 +21,9 @@ import gym
 import gym_crumb
 import logging
 from math import pow
+from gazebo_msgs.srv import GetModelState, GetJointProperties, GetLinkState
+from gazebo_msgs.msg import ModelState
+
 
 prev_directions = []
 plan = []
@@ -37,8 +40,8 @@ class TurtleBot:
 
         # A subscriber to the topic '/simulation/pose'. self.update_pose is called
         # when a message of type Point is received.
-        self.pose_subscriber = rospy.Subscriber('/simulation/pose',
-                                                Point, self.update_pose)
+        # self.pose_subscriber = rospy.Subscriber('/simulation/pose',
+        #                                         Point, self.update_pose)
 
         self.pose = Point()
         self.rate = rospy.Rate(10)
@@ -46,6 +49,12 @@ class TurtleBot:
         # camera handler
         self.cam_sub = rospy.Subscriber("/camera/depth/points", PointCloud2, self.callback_kinect)
         self.middle = PointCloud2()
+
+    def subscribe_pose(self, object, ob2 = ''):
+        # A subscriber to the service '/simulation/pose'. self.update_pose is called
+        # when a message of type Point is received.
+        model_state = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+        return model_state(object, ob2)
 
     def callback_kinect(self, data):
         # pick a height
@@ -99,7 +108,7 @@ class TurtleBot:
 
         vel_msg = Twist()
 
-        vel_msg.linear.x = 1
+        vel_msg.linear.x = 0.4
         # Since we are moving just in x-axis
         vel_msg.linear.y = 0
         vel_msg.linear.z = 0
@@ -188,7 +197,7 @@ class TurtleBot:
             print('dir is the same')
             resp = 'yes'
 
-        speed = 15.0
+        speed = 12.0
 
         if resp and change_dir:
             angular_speed = radians(speed)
@@ -221,7 +230,7 @@ class TurtleBot:
             ch_ang = prev_angle - dir_angle
         else:
             ch_ang = dir_angle - prev_angle
-        return ch_ang
+        return radians(ch_ang)
 
     def rudder(self, relative_angle, angular_speed=0.5, clockwise=True):
 
@@ -254,13 +263,22 @@ class TurtleBot:
         self.velocity_publisher.publish(vel_msg)
         return 'yes'
 
-    def rotate(self, direct, prev_direct):
+    def tb2_fault(self, action, prev_poses):
+        crumb_pose = self.subscribe_pose('crumb')
+        AC_len = sqrt((crumb_pose.pose.position.x-prev_poses[-2][0])**2 + (crumb_pose.pose.position.y-prev_poses[-2][1])**2)
+        BC_len = action[2] - crumb_pose.pose.position.y
+        ACB = acos(abs(BC_len)/abs(AC_len))
+        ACD = radians(90)
+        return abs(ACD-ACB)
+
+    def rotate(self, action, prev_direct, prev_poses = None):
         "rotate to new direction"
+        direct = action[3][1:]
         print('rotating to {0}'.format(direct))
         PI = 3.1415926535897
 
         # degrees/sec
-        speed = 15.0
+        speed = 12.0
         # direction
         print('new dir: {0}, prev dir: {1}'.format(direct, prev_direct))
         angle = self.get_angle(direct, prev_direct)
@@ -269,23 +287,32 @@ class TurtleBot:
             clockwise = False
         else:
             clockwise = True
+        if prev_poses:
+            additional_angle = self.tb2_fault(action, prev_poses)
+        else:
+            additional_angle = 0.0
 
-        angle = abs(angle) + 18.0
+        angle = abs(angle) + additional_angle*3
         # angle = abs(angle)
 
         # Converting from angles to radians
         angular_speed = speed * 2 * PI / 360
-        relative_angle = angle * 2 * PI / 360
 
-        return self.rudder(relative_angle, angular_speed, clockwise)
+
+        return self.rudder(angle, angular_speed, clockwise)
 
 
     def pickup(self, act_form, prev_direct):
 
-        cp_x = act_form[1]
-        cp_y = act_form[2]
-        modified = round(cp_y+ cp_x - 0.4, 2)
-        resp = self.move(cp_x, modified, prev_direct, cp_x, cp_y)
+        # cp_x = act_form[1]
+        # cp_y = act_form[2]
+        # modified = round(cp_y+ cp_x - 0.4, 2)
+
+        crumb_pose = self.subscribe_pose('crumb')
+        unit_box_3_pose = self.subscribe_pose('unit_box_3')
+
+
+        resp = self.move(unit_box_3_pose.pose.position.x, unit_box_3_pose.pose.position.y, prev_direct, crumb_pose.pose.position.x, crumb_pose.pose.position.y)
 
         new_env = gym.make("crumb-synthetic-v0")
         TRPOagent = TRPOAgent(new_env)

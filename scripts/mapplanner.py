@@ -108,6 +108,16 @@ def find_solution(domain, problem, LogicType, saveload, gazebo):
     return solution
 
 if __name__ == '__main__':
+
+    # from psutil import process_iter
+    # from signal import SIGTERM  # or SIGKILL
+    #
+    # for proc in process_iter():
+    #     for conns in proc.connections(kind='inet'):
+    #         if conns.laddr.port == 9097:
+    #             proc.send_signal(SIGTERM)  # or SIGKILL
+    #             continue
+
     # Commandline parsing
     log_levels = ['debug', 'info', 'warning', 'error']
     logic_type = ['spatial', 'classic']
