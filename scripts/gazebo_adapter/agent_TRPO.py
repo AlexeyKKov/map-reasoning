@@ -131,7 +131,7 @@ class TRPOAgent:
 
     def pick(self, env):
         env.gripper.publish(0.0)
-        env.aim.z += 0.2
+        env.h += 0.2
         obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
 
         done = False
@@ -150,7 +150,7 @@ class TRPOAgent:
 
     def putdown(self, env):
         obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
-        env.aim.z += -0.1
+        env.h += -0.1
         done = False
         reward = 0
         l = 0

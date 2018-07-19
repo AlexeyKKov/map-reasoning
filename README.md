@@ -46,38 +46,47 @@ sudo apt-get install ros-kinetic-gazebo-ros-control <br>
 sudo apt-get install python3-yaml <br>
 sudo pip3 install rospkg catkin_pkg <br>
 </i><br>
-2. Install Crumb project:
 
-<i>https://github.com/CRUMBproject</i>
+2. Create catkin_workspace with name crumb
 
-3. Move the current project to:
+<i>http://wiki.ros.org/catkin/Tutorials/create_a_workspace</i>
+
+3. Install Crumb project in crumb/src/ROS directory:
+
+<i>https://github.com/ermekaitygulov/Crumb.git</i>
+
+3. In directory crumb/src pull arbotix:
+
+<i>https://github.com/vanadiumlabs/arbotix_ros.git</i>
+
+4. Move the current map-planner project to:
 
 <i>crumb/src</i>
 
-4. Build Crumb:
+5. Build Crumb:
 
 in /crumb directory: <i>catkin_make</i>
 
-5. Install Theano and Lasagne:
+6. Install Theano and Lasagne:
 
 <i>sudo pip3 install --upgrade https://github.com/Theano/Theano/archive/master.zip</i> <br>
 <i>sudo pip3 install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip</i> <br>
 
-6. Install OpenAI gym:
+7. Install OpenAI gym:
 
 <i>sudo pip3 install gym</i>
 
-7. Install gym_crumb:
+8. Install gym_crumb:
 
 <i>https://github.com/ermekaitygulov/gym-crumb.git</i>
 
-8. Change pick_place.world file
+9. Change pick_place.world file
 in <br>
 <i>crumb/src/ROS/crumb/crumb_gazebo/worlds/ <br><i>
 to <br>
 <i>pick_place.world</i> in benchmarks/spatial/
 
-9. Start Gazebo with crumb_gazebo module:
+10. Start Gazebo with crumb_gazebo module:
 
 In terminal:
 
@@ -85,6 +94,6 @@ cd ~/crumb </br>
 source devel/setup.bash </br>
 <i>roslaunch crumb_gazebo crumb_pick_place.launch</i>
 
-10. Start mapplanner with spatial task and key -g
+11. Start mapplanner with spatial task and key -g
 
 <i>benchmarks/spatial/ 1 -g</i>

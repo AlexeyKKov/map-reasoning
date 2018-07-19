@@ -24,7 +24,7 @@ def clarify_problem(path, number, logic):
     elif logic == 'classic':
         domain = 'domain.pddl'
         task = 'task' + number + '.pddl'
-    print(os.getcwd()+path)
+    print(os.getcwd()+'/'+path)
     if not domain in os.listdir(path):
         raise Exception('domain not found!')
     else:
@@ -108,15 +108,6 @@ def find_solution(domain, problem, LogicType, saveload, gazebo):
     return solution
 
 if __name__ == '__main__':
-
-    # from psutil import process_iter
-    # from signal import SIGTERM  # or SIGKILL
-    #
-    # for proc in process_iter():
-    #     for conns in proc.connections(kind='inet'):
-    #         if conns.laddr.port == 9097:
-    #             proc.send_signal(SIGTERM)  # or SIGKILL
-    #             continue
 
     # Commandline parsing
     log_levels = ['debug', 'info', 'warning', 'error']

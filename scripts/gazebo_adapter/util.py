@@ -167,8 +167,7 @@ def state1(aim, env):
 
 def synthetic_state(env, s, aim):
     s = tuple([s[i] // 0.01 * 0.01 for i in range(0, 4)])
-    gripper = env.link_state('gripper_1_link', 'biceps_link').link_state.pose.position
+    gripper = env.link_state('gripper_1_link', 'base_footprint').link_state.pose.position
     r = metric(gripper, env.aim) // 0.01 * 0.01
-    rel_aim, _ = env.get_state()
-    state = (r,) + state1(rel_aim, env) + s
+    state = (r,) + state1(env.aim, env) + s
     return state

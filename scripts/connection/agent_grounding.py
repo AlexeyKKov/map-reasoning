@@ -83,12 +83,12 @@ class Agent:
                     if not resp:
                         raise Exception('Agent {0} can not implement a rotate action'.format(self.name))
                 elif 'pick-up' in action[0]:
-                    resp = tb.pickup(action, prev_direct)
+                    resp = tb.pickup(action, prev_direct, 0.5)
                     if not resp:
                         raise Exception('Agent {0} can not implement a pick-up action'.format(self.name))
                 elif 'put-down' in action[0]:
                     prev_direct = prev_directions[-1]
-                    resp = tb.putdown(action, prev_direct)
+                    resp = tb.putdown(action, prev_direct, 0.5)
                     if not resp:
                         raise Exception('Agent {0} can not implement a put-down action'.format(self.name))
             except rospy.ROSInterruptException:

@@ -302,7 +302,7 @@ class TurtleBot:
         return self.rudder(angle, angular_speed, clockwise)
 
 
-    def pickup(self, act_form, prev_direct):
+    def pickup(self, act_form, prev_direct, table_radius):
 
         # cp_x = act_form[1]
         # cp_y = act_form[2]
@@ -312,7 +312,7 @@ class TurtleBot:
         unit_box_3_pose = self.subscribe_pose('unit_box_3')
 
 
-        resp = self.move(unit_box_3_pose.pose.position.x, unit_box_3_pose.pose.position.y, prev_direct, crumb_pose.pose.position.x, crumb_pose.pose.position.y)
+        resp = self.move(unit_box_3_pose.pose.position.x - (table_radius/2), unit_box_3_pose.pose.position.y - (table_radius/2), prev_direct, crumb_pose.pose.position.x, crumb_pose.pose.position.y)
 
         new_env = gym.make("crumb-synthetic-v0")
         TRPOagent = TRPOAgent(new_env)
@@ -324,11 +324,12 @@ class TurtleBot:
 
         return 'yes'
 
-    def putdown(self, act_form, prev_direct):
-        cp_x = act_form[1]
-        cp_y = act_form[2]
-        modified = cp_y+ cp_x
-        resp = self.move(cp_x, modified, prev_direct, cp_x, cp_y)
+    def putdown(self, act_form, prev_direct, table_radius):
+        crumb_pose = self.subscribe_pose('crumb')
+        unit_box_1_pose = self.subscribe_pose('unit_box_1')
+
+        resp = self.move(unit_box_1_pose.pose.position.x, unit_box_1_pose.pose.position.y, prev_direct,
+                         crumb_pose.pose.position.x, crumb_pose.pose.position.y)
 
         new_env = gym.make("crumb-synthetic-v0")
         TRPOagent = TRPOAgent(new_env)
