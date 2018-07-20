@@ -22,7 +22,7 @@ benchmarks/mapddl/logistics00/city_trucks_constr/ 1 -lt classic
 
 benchmarks/simple/blocks/ 01 -lt classic
 
-benchmarks/spatial/ 1
+benchmarks/spatial/ 1 -g
 <br>
 <hr>
 <p><strong>Requirements</strong>:<br>

@@ -131,7 +131,7 @@ class TRPOAgent:
 
     def pick(self, env):
         env.gripper.publish(0.0)
-        env.h += 0.2
+        env.h += 0.1
         obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
 
         done = False
