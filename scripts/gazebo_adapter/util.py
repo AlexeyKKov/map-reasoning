@@ -150,7 +150,7 @@ def state1(aim, env):
     joint[2] = get_pose('wrist_1_link', env)
     joint[3] = get_pose('gripper_1_link', env)*0.5 + get_pose('gripper_2_link', env)*0.5
 
-    joint[3] += (joint[3] - joint[2])*(0.017 / 0.11450014)
+    joint[3] += (joint[3] - joint[2])*(0.025 / 0.11450014)
     # vectors
     vec1 = np.zeros(3)
     vec2 = np.zeros(3)
