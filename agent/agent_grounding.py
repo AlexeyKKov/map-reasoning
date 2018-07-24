@@ -75,9 +75,13 @@ class Agent:
                 logging.info('Agent '+self.name+' got the final solution!')
             break
 
-        conn.close()
 
+        file_name = None
         if self.is_load:
-            return task.save_signs(self.solution)
+            file_name = task.save_signs(self.solution)
 
+        if file_name:
+            message = 'Agent ' + self.name + ' finished all works'
+            conn.send(message.encode("utf-8"))
 
+        conn.close()

@@ -46,6 +46,7 @@ class Manager:
         multiple_results = [pool.apply_async(self.agent_start, (agent, port, others)) for agent, port, others in
                             clagents]
 
+        finished_agents = []
         while True:
             # waiting plans from agents
             (clientsocket, address) = serversocket.accept()
@@ -61,6 +62,10 @@ class Manager:
                 agent, self.solution = auction(self.solution)
                 # send best solution forward to agents
                 clientsocket.send(self.solution.encode('utf-8'))
+
+            finish_apply = clientsocket.recv(1024)
+            finished_agents.append(finish_apply.decode())
+            if len(finished_agents) == len(clagents):
                 break
 
         clientsocket.close()
@@ -68,15 +73,15 @@ class Manager:
         if multiple_results:
             pool.close()
 
-        # STOP THE PARENT PROCESS and Let Agents finish their goals
-        import time
-        max_time = 10
-        start_time = 0
-        while not self.finished:
-            time.sleep(1)
-            start_time += 1
-            if start_time >= max_time:
-                break
+        # # STOP THE PARENT PROCESS and Let Agents finish their goals
+        # import time
+        # max_time = 10
+        # start_time = 0
+        # while not self.finished:
+        #     time.sleep(1)
+        #     start_time += 1
+        #     if start_time >= max_time:
+        #         break
 
         return self.solution
 
