@@ -405,7 +405,7 @@ class Connector:
     def get_out_cm(self, base):
         if self.out_index > 0:
             if not self.out_index in getattr(self.out_sign, base + 's'):
-                print()
+                raise Exception('In connector {0} you cannot get out causal matrix'.format(self))
             return getattr(self.out_sign, base + 's')[self.out_index]
         else:
             raise Exception('In connector {0} you cannot get out causal matrix'.format(self))
@@ -515,8 +515,11 @@ class Sign:
             if connector.out_index == cm.index:
                 self.out_meanings.remove(connector)
 
-        del self.meanings[cm.index]
 
+        if self.meanings[cm.index]:
+            del self.meanings[cm.index]
+        else:
+            raise Exception('Already removed!')
 
     def spread_up_activity_act(self, base, depth):
         """

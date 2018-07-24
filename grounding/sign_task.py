@@ -36,10 +36,10 @@ class Task:
         return '<Task {0}, signs: {1}>'.format(self.name, len(self.signs))
 
     def save_signs(self, plan):
-        def __is_role(sign):
-            signifs = sign.significances
-            for _, cm in signifs.items():
-                if len(cm.cause):
+        def __is_role(pm):
+            chains = pm.spread_down_activity('meaning', 6)
+            for chain in chains:
+                if len(chain[-1].sign.significances[1].cause) != 0:
                     break
             else:
                 return False
@@ -49,24 +49,28 @@ class Task:
         logging.info('Plan preparation to save...')
         if plan:
             logging.info('\tCleaning SWM...')
-            pms = [pm[0] for pm in plan[:-1]]
+            pms_sit = [pm[0] for pm in plan[:-1]]
+            pms_act = [pm[2] for pm in plan[:-1]]
+            deleted = []
             for name, s in self.signs.copy().items():
                 signif=list(s.significances.items())
                 if name.startswith(SIT_PREFIX):
                     for index, pm in s.meanings.copy().items():
-                        if pm not in pms:
+                        if pm not in pms_sit:
                             s.remove_meaning(pm) # delete all situations
+                            deleted.append(pm)
                     self.signs.pop(name)
                 elif len(signif):
                     if len(signif[0][1].cause) and len(signif[0][1].effect): #delete action's meanings that are not in plan
                         for index, pm in s.meanings.copy().items():
-                            pm_signs = pm.get_signs()
-                            for pm_sign in pm_signs:
-                                if __is_role(pm_sign): # delete only fully signed actions.
-                                    break
+                            # if pm not in pms_act:
+                            #     s.remove_meaning(pm)
+                            if __is_role(pm):  # delete only fully signed actions
+                                break
                             else:
-                                if pm not in pms:
+                                if pm not in pms_act:
                                     s.remove_meaning(pm)
+
 
 
 
@@ -76,15 +80,11 @@ class Task:
             for agent in itertools.chain(They_signs, I_obj):
                 for connector in list(agent.out_meanings.copy()):
                     pm = connector.in_sign.meanings[connector.in_index]
-                    if pm not in pms:
-                        pm_signs = pm.get_signs()
-                        for pm_sign in pm_signs:
-                            if __is_role(pm_sign):  # delete only fully signed actions
+                    if pm not in pms_act:
+                        if __is_role(pm):  # delete only fully signed actions
                                 break
                         else:
                             agent.out_meanings.remove(connector)
-
-
 
             logging.info('\tSaving precedent...')
             self.start_situation.name += self.name

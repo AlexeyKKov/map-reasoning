@@ -13,11 +13,14 @@ class Manager:
         self.logic = logic
         self.solution = []
         self.gazebo = gazebo
+        self.finished = None
 
 
     # send task for agent to start searching
     def agent_start(self, agent, port, others):
-        agent.search_solution(port, others)
+        saved = agent.search_solution(port, others)
+        if saved:
+            self.finished = True
         return True
 
     # create a pool of workers (1 per agent) and wait for their plans.
@@ -65,17 +68,15 @@ class Manager:
         if multiple_results:
             pool.close()
 
-        # #STOP THE PARENT PROCESS and Let Agents finish their goals
-        # import time
-        # max_time = 100000
-        # start_time = 0
-        # while self.planning:
-        #     time.sleep(10)
-        #     start_time+=1
-        #     if start_time >= max_time:
-        #         break
-
-
+        # STOP THE PARENT PROCESS and Let Agents finish their goals
+        import time
+        max_time = 10
+        start_time = 0
+        while not self.finished:
+            time.sleep(1)
+            start_time += 1
+            if start_time >= max_time:
+                break
 
         return self.solution
 

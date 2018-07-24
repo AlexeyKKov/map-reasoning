@@ -340,9 +340,9 @@ class Map_search():
                         if matr[-1].sign.name == 'cell?y' or matr[-1].sign.name == 'cell?x':
                             celly = self.world_model['cell?y']
                             cellx = self.world_model['cell?x']
-                            cell_y_change = ma_combination[celly]
+                            cell_y_change = ma_combination[celly].copy('meaning', 'meaning')
                             cm.replace('meaning', celly, cell_y_change)
-                            cell_x_change = self.world_model['cell-4'].add_meaning()
+                            cell_x_change = ma_combination[cellx].copy('meaning', 'meaning')
                             cm.replace('meaning', cellx, cell_x_change)
                             break
 
@@ -568,23 +568,36 @@ class Map_search():
 
 
     def _state_prediction(self, active_pm, script, agent, iteration, flag=False):
+        def __search_cm(events_list, signs):
+            searched = {}
+            for event in events_list:
+                for conn in event.coincidences:
+                    if conn.out_sign in signs:
+                        searched.setdefault(conn.out_sign, []).append(conn.get_out_cm('meaning'))
+            for s in signs:
+                if not s in searched:
+                    searched[s] = None
+            return searched
         direction = None
         cell = None
         events = []
-        fast_estimation = self._time_shift_forward(active_pm, script)
-        orientation = fast_estimation.get_iner(self.world_model['orientation'], 'meaning')[0]
-        employment = fast_estimation.get_iner(self.world_model['employment'], 'meaning')[0]
-        holding = None
-        h_sign = self.world_model['holding']
-        if h_sign in fast_estimation.get_signs():
-            holding = fast_estimation.get_iner(h_sign, 'meaning')[0]
+        fast_estimation = self._time_shift_forward_spat(active_pm, script)
+        searched = __search_cm(fast_estimation, [self.world_model['orientation'], self.world_model['holding'], self.world_model['employment']] )
+
+        employment = searched[self.world_model['employment']][0]
+        holding = searched[self.world_model['holding']]
+        if holding:
+            holding = holding[0]
+        orientation = searched[self.world_model['orientation']][0]
         for sign in orientation.get_signs():
             if sign != agent:
                 direction = sign
+                break
         for sign in employment.get_signs():
             if sign != agent:
                 cell = sign
-        for ev in fast_estimation.cause:
+                break
+        for ev in fast_estimation:
             if len(ev.coincidences) == 1:
                 for con in ev.coincidences:
                     if con.out_sign.name == "I":
@@ -618,8 +631,11 @@ class Map_search():
             new_x_y['objects'][block_name]['x'] = new_x_y['objects'][table_name]['x']
         region_map, cell_map, cell_location, near_loc, cell_coords_new = signs_markup(new_x_y, 'agent', cell_coords)
 
-        estimation = define_situation(fast_estimation.sign.name + 'sp', cell_map, events, agent_state, self.world_model)
+        sit_name = st.SIT_PREFIX + str(st.SIT_COUNTER)
+        st.SIT_COUNTER+=1
+        estimation = define_situation(sit_name + 'sp', cell_map, events, agent_state, self.world_model)
         estimation = update_situation(estimation, cell_map, self.world_model, fast_estimation)
+
 
         if flag:
             region = None
@@ -682,6 +698,18 @@ class Map_search():
         for event in script.effect:
             pm.add_event(event.copy(pm, 'meaning', 'meaning', copied))
         return pm
+
+    def _time_shift_forward_spat(self, active_pm, script):
+        pm_events = []
+        for event in active_pm.cause:
+            for es in script.cause:
+                if event.resonate('meaning', es):
+                    break
+            else:
+                pm_events.append(event)
+        for event in script.effect:
+            pm_events.append(event)
+        return pm_events
 
     def change_map(self, active_map, cell_location):
         pms = active_map.spread_down_activity('meaning', 4)

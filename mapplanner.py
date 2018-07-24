@@ -143,7 +143,14 @@ if __name__ == '__main__':
         logging.warning('No solution could be found')
     else:
         solution_file = args.benchmark.split("/")[-2] + '_task'+args.task_number + SOLUTION_FILE_SUFFIX
-        logging.info('Plan length: %s' % len(solution))
+
         with open(solution_file, 'w') as file:
-            for action in solution.split(';')[:-1]:
-                print(action, file=file)
+            if ' && ' in solution:
+                logging.info('Plan length: %s' % len(solution.split(' && ')[:-1]))
+                for action in solution.split(' && ')[:-1]:
+                    print(action, file=file)
+            else:
+                logging.info('Plan length: %s' % len(solution.split(';')[:-1]))
+                for action in solution.split(';')[:-1]:
+                    print(action, file=file)
+

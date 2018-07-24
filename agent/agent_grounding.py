@@ -78,7 +78,6 @@ class Agent:
         conn.close()
 
         if self.is_load:
-            task.save_signs(self.solution)
-
+            return task.save_signs(self.solution)
 
 

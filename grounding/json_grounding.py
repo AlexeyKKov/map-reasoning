@@ -566,14 +566,16 @@ def update_situation(sit_meaning, cell_map, signs, fast_est=None):
                             matrixe.sign.add_out_meaning(connector)
     else:
         target_signs = ['holding', 'handempty', 'ontable']
-        for event in fast_est.cause:
+        copied = {}
+        for event in fast_est:
             if len(event.coincidences) == 1:
                     for fevent in sit_meaning.cause:
                         if event.resonate('meaning', fevent):
                             break
                     else:
                         if [con.get_out_cm('meaning').sign.name for con in event.coincidences][0] in target_signs:
-                            sit_meaning.add_event(event, False)
+                            sit_meaning.cause.append(event.copy(sit_meaning, 'meaning', 'meaning', copied))
+                            #sit_meaning.add_event(event, False)
     return sit_meaning
 
 
@@ -598,7 +600,6 @@ def define_situation(sit_name, cell_map, events, agent_state, signs):
 
     for cell, objects in mapper.items():
         noth_sign = signs['nothing']
-        cont_meaning = None
         flag = False
         if 0 in objects:
             flag = True
@@ -723,13 +724,15 @@ def define_situation(sit_name, cell_map, events, agent_state, signs):
 
             sit_meaning= update_situation(sit_meaning, cell_map, signs)
         else:
+            actuator = actuator.copy('meaning', 'meaning')
             conn = sit_meaning.add_feature(actuator)
             actuator.sign.add_out_meaning(conn)
 
 
 
     for event in events:
-        sit_meaning.add_event(event)
+        copied = {}
+        sit_meaning.cause.append(event.copy(sit_meaning, 'meaning', 'meaning', copied))
 
     return sit_meaning
 
@@ -891,6 +894,7 @@ def spatial_ground(problem, agent, logic):
             matrices = []
 
         act_mean = act_signif.copy('significance', 'meaning')
+        # I_mean_predicates = I_sign.add_meaning()
         act_mean.replace('meaning', signs['agent'], obj_means[I_sign])
         connector = act_mean.add_feature(obj_means[I_sign])
         efconnector = act_mean.add_feature(obj_means[I_sign], effect=True)
