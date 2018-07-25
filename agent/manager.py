@@ -1,5 +1,8 @@
+import random
+import time
+
 from agent.agent_grounding import Agent
-from multiprocessing import Pool
+from multiprocessing import Pool, Process
 from agent.messagen import reconstructor
 import logging
 
@@ -18,38 +21,29 @@ class Manager:
 
     # send task for agent to start searching
     def agent_start(self, agent, port, others):
+        import logging
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger("process-%r" % (agent.name))
+        logger.info('Agent {0} start planning'.format(agent.name))
         saved = agent.search_solution(port, others)
         if saved:
+            logger.info('Agent {0} finish planning'.format(agent.name))
             self.finished = True
-        return True
+        return agent.name +' finished'
 
-    # create a pool of workers (1 per agent) and wait for their plans.
-    def manage_agents(self):
-        # binding a server socket for solution
-        clagents = []
-        port = 9097
+    def server_start(self, port, amount_agents):
         import socket
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         serversocket.bind(('', port))
-        serversocket.listen(5)
+        serversocket.listen(10)
 
-        for agent in self.agents:
-            agent = Agent(agent, self.agents, self.problem, self.logic, self.saveload, self.gazebo) # create Agents with info about a problem
-            port += 1
-            clagents.append([agent, port])
-        for current_agent in clagents:
-            others = [[agent[0].name, agent[1]] for agent in clagents if not agent is current_agent]
-            current_agent.insert(2, others)
-
-        pool = Pool(processes=len(clagents)) # make a pool with agents
-        multiple_results = [pool.apply_async(self.agent_start, (agent, port, others)) for agent, port, others in
-                            clagents]
-
+        agents_socket = []
         finished_agents = []
         while True:
             # waiting plans from agents
             (clientsocket, address) = serversocket.accept()
+            agents_socket.append(clientsocket)
             solution = clientsocket.recv(1024)
             solution = solution.decode()
 
@@ -58,32 +52,41 @@ class Manager:
             else:
                 logging.info("Solution is not found by agents")
             print('connected:', address)
-            if len(self.solution) == len(clagents):
+
+            if len(self.solution) == amount_agents:
                 agent, self.solution = auction(self.solution)
                 # send best solution forward to agents
-                clientsocket.send(self.solution.encode('utf-8'))
-
-            finish_apply = clientsocket.recv(1024)
-            finished_agents.append(finish_apply.decode())
-            if len(finished_agents) == len(clagents):
-                break
-
+                for sock in agents_socket:
+                    sock.send(self.solution.encode('utf-8'))
+            else:
+                continue
+            break
         clientsocket.close()
 
-        if multiple_results:
-            pool.close()
-
-        # # STOP THE PARENT PROCESS and Let Agents finish their goals
-        # import time
-        # max_time = 10
-        # start_time = 0
-        # while not self.finished:
-        #     time.sleep(1)
-        #     start_time += 1
-        #     if start_time >= max_time:
-        #         break
-
         return self.solution
+
+    # create a pool of workers (1 per agent) and wait for their plans.
+    def manage_agents(self):
+        # binding a server socket for solution
+        clagents = []
+        port = 9097
+        for agent in self.agents:
+            agent = Agent(agent, self.agents, self.problem, self.logic, self.saveload, self.gazebo) # create Agents with info about a problem
+            port += 1
+            clagents.append([agent, port])
+        for current_agent in clagents:
+            others = [[agent[0].name, agent[1]] for agent in clagents if not agent is current_agent]
+            current_agent.insert(2, others)
+        p = Process(target=self.server_start, args=(port-len(clagents), len(clagents), ))
+        p.start()
+        pool = Pool(processes=len(clagents)) # make a pool with agents
+        multiple_results = [pool.apply_async(self.agent_start, (agent, port, others)) for agent, port, others in
+                            clagents]
+        logging.info([res.get(timeout=1000) for res in multiple_results])
+        if self.solution:
+            return self.solution
+        else:
+            time.sleep(1)
 
 def auction(solutions):
     plans = {}

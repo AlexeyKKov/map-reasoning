@@ -129,6 +129,7 @@ class Task:
         logging.info('Start saving to {0}'.format(file_name))
         logging.info('\tDumping SWM...')
         pickle.dump(self.signs, open(file_name, 'wb'))
+        logging.info('\tDumping SWM finished')
         return file_name
 
     @staticmethod

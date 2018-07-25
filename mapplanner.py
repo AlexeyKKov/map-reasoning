@@ -82,7 +82,8 @@ def search_classic(domain_file, problem_file, logic, saveload):
         logging.info('Only 1 agent plan')
 
 
-    return agent_manager(agents, problem, logic, saveload)
+    solution = agent_manager(agents, problem, logic, saveload)
+    return solution
 
 def search_spatial(domain_file, problem_file, logic = 'spatial', saveload = False, gazebo = False):
 
@@ -149,8 +150,8 @@ if __name__ == '__main__':
                 logging.info('Plan length: %s' % len(solution.split(' && ')[:-1]))
                 for action in solution.split(' && ')[:-1]:
                     print(action, file=file)
-            else:
-                logging.info('Plan length: %s' % len(solution.split(';')[:-1]))
-                for action in solution.split(';')[:-1]:
-                    print(action, file=file)
+            # else:
+            #     logging.info('Plan length: %s' % len(solution))
+            #     for action in solution:
+            #         print(action, file=file)
 

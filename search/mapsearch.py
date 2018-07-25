@@ -228,9 +228,43 @@ class Map_search():
                 if con.in_sign == main_pm.sign:
                     mapped_actions.setdefault(con.out_sign, set()).add(con.in_sign.meanings[con.in_index])
 
+        new_map = {}
+        rkeys = {el for el in replace_map.keys()}
+        pms = []
+
         if self.constraints:
             replaced = dict()
+            pms_names = []
             for ag, actions in mapped_actions.items():
+                # # firstly full signed actions from experience
+                for pm in actions.copy():
+                    # # remove expanded actions
+                    max_len = 0
+                    for event in pm.cause:
+                        if len(event.coincidences) > max_len:
+                            max_len = len(event.coincidences)
+                            if max_len > 1:
+                                break
+                    if max_len == 1:
+                        actions.remove(pm)
+                        continue
+                    if len(pm.cause) + len(pm.effect) != main_pm_len:
+                        continue
+                    pm_signs = pm.get_signs()
+                    role_signs = rkeys & pm_signs
+                    if not role_signs:
+                        actions.remove(pm)
+                        if not pms:
+                            pms.append((ag, pm))
+                            pms_names.append({s.name for s in pm_signs})
+                        else:
+                            for _, pmd in copy(pms):
+                                if pmd.resonate('meaning', pm):
+                                    break
+                            else:
+                                pms.append((ag, pm))
+                                pms_names.append({s.name for s in pm_signs})
+                ## get characters from constr to replace
                 agcall = ag.name
                 if ag.name == 'I':
                     agcall = self.I_obj.name
@@ -250,8 +284,13 @@ class Map_search():
                                         consist[1].append(signa[0])
                                 else:
                                     consist[0].add(signa[0])
-                        variants.append((constr_role, consist))
+                        for names in pms_names:
+                            if consist[0] <= names and consist[1][0] in names:
+                                break
+                        else:
+                            variants.append((constr_role, consist))
                 for act in actions:
+
                     cm_sign_names = {si.name for si in act.get_signs()}
                     for var in variants:
                         if var[1][0] <= cm_sign_names:
@@ -270,14 +309,8 @@ class Map_search():
             if replaced:
                 mapped_actions = replaced
 
-        new_map = {}
 
-        rkeys = {el for el in replace_map.keys()}
-
-
-        pms = []
         for agent, lpm in mapped_actions.items():
-            # firstly full signed actions from experience
             for pm in lpm.copy():
                 if len(pm.cause) + len(pm.effect) != main_pm_len:
                     continue
@@ -297,8 +330,6 @@ class Map_search():
                         else:
                             pms.append((agent, pm))
             old_pms = []
-
-            if len(pms) == 64: break
 
             for pm in lpm:
                 if len(pm.cause) + len(pm.effect) != main_pm_len:

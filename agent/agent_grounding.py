@@ -71,17 +71,14 @@ class Agent:
         while True:
             auct_sol = conn.recv(1024)
             self.final_solution = auct_sol.decode()
-            if self.solution:
-                logging.info('Agent '+self.name+' got the final solution!')
-            break
-
+            if self.final_solution != '':
+                print('Agent '+self.name+' got the final solution!')
+                break
+        conn.close()
 
         file_name = None
         if self.is_load:
             file_name = task.save_signs(self.solution)
-
         if file_name:
-            message = 'Agent ' + self.name + ' finished all works'
-            conn.send(message.encode("utf-8"))
+            logging.info('Agent ' + self.name + ' finished all works')
 
-        conn.close()
