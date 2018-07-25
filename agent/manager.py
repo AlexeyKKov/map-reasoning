@@ -1,8 +1,9 @@
+import multiprocessing
 import random
 import time
 
-from agent.agent_grounding import Agent
-from multiprocessing import Pool, Process
+from agent.agent_search import Agent
+from multiprocessing import Pool, Process, Queue
 from agent.messagen import reconstructor
 import logging
 
@@ -31,7 +32,7 @@ class Manager:
             self.finished = True
         return agent.name +' finished'
 
-    def server_start(self, port, amount_agents):
+    def server_start(self, port, amount_agents, q):
         import socket
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -39,7 +40,7 @@ class Manager:
         serversocket.listen(10)
 
         agents_socket = []
-        finished_agents = []
+
         while True:
             # waiting plans from agents
             (clientsocket, address) = serversocket.accept()
@@ -63,6 +64,7 @@ class Manager:
             break
         clientsocket.close()
 
+        q.put(self.solution)
         return self.solution
 
     # create a pool of workers (1 per agent) and wait for their plans.
@@ -77,7 +79,10 @@ class Manager:
         for current_agent in clagents:
             others = [[agent[0].name, agent[1]] for agent in clagents if not agent is current_agent]
             current_agent.insert(2, others)
-        p = Process(target=self.server_start, args=(port-len(clagents), len(clagents), ))
+
+        multiprocessing.set_start_method('spawn')
+        q = Queue()
+        p = Process(target=self.server_start, args=(port-len(clagents), len(clagents), q, ))
         p.start()
         pool = Pool(processes=len(clagents)) # make a pool with agents
         multiple_results = [pool.apply_async(self.agent_start, (agent, port, others)) for agent, port, others in
@@ -87,6 +92,8 @@ class Manager:
             return self.solution
         else:
             time.sleep(1)
+
+        return q.get()
 
 def auction(solutions):
     plans = {}

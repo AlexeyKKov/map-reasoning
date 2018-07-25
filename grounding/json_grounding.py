@@ -869,7 +869,7 @@ def spatial_ground(problem, agent, logic):
             act_sign = signs[action_name]
             act_signif = act_sign.add_significance()
         def get_predicate(pr_name, pr_model):
-            pr_name = re.sub(r'[^\w\s\p{P}]+|[\d]+', r'', pr_name).strip()
+            pr_name = re.sub(r'[^\w\s{P}]+|[\d]+', r'', pr_name).strip()
             pr_sign = signs[pr_name]
             model_signs = [el for el in itertools.chain(pr_model['cause'], pr_model['effect'])]
             for id, matrice in pr_sign.significances.items():

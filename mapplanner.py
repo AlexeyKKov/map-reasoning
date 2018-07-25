@@ -150,8 +150,8 @@ if __name__ == '__main__':
                 logging.info('Plan length: %s' % len(solution.split(' && ')[:-1]))
                 for action in solution.split(' && ')[:-1]:
                     print(action, file=file)
-            # else:
-            #     logging.info('Plan length: %s' % len(solution))
-            #     for action in solution:
-            #         print(action, file=file)
+            else:
+                logging.info('Plan length: %s' % len(solution.split(';')[:-1]))
+                for action in solution.split(';')[:-1]:
+                    print(action, file=file)
 

@@ -32,18 +32,14 @@ class Map_search():
         else:
             self.check_map = None
         self.MAX_ITERATION = 30
-        logging.info('Start: {0}'.format(self.check_pm.longstr()))
-        logging.info('Finish: {0}'.format(self.active_pm.longstr()))
+        logging.debug('Start: {0}'.format(self.check_pm.longstr()))
+        logging.debug('Finish: {0}'.format(self.active_pm.longstr()))
 
     def search_plan(self):
         self.I_sign, self.I_obj, self.agents = self.__get_agents()
+        #logger = logging.getLogger("process-%r" % (self.I_obj.name))
         plans = self._map_iteration(self.active_pm, self.active_map, iteration=0, current_plan=[])
-        if plans:
-            solution = self.long_relations(plans)
-        else:
-            logging.info('No solution can be found!')
-            return None
-        return solution
+        return plans
 
     def _map_iteration(self, active_pm, active_map, iteration, current_plan, prev_state = []):
         logging.debug('STEP {0}:'.format(iteration))

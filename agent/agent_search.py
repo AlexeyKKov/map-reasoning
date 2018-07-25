@@ -54,8 +54,18 @@ class Agent:
                 elif len(others) == 0:
                     method = 'save_achievement'
         search = Map_search(task)
-        self.solution = search.search_plan()
-
+        solutions = search.search_plan()
+        sol_acronims = []
+        for sol in solutions:
+            acronim = ''
+            for act in sol:
+                if act[3].name == 'I':
+                    name = self.name
+                else:
+                    name = act[3].name
+                acronim+= act[1] + ' '+name +';'
+            sol_acronims.append(acronim)
+        self.solution = search.long_relations(solutions)
         self.solution.append((connection_sign.add_meaning(), method, cm, task.signs["I"]))
 
         mes = Tmessage(self.solution, self.name)
@@ -71,14 +81,22 @@ class Agent:
         while True:
             auct_sol = conn.recv(1024)
             self.final_solution = auct_sol.decode()
+            final_acronim = ''
+            for fa in self.final_solution.split(';')[:-2]:
+                final_acronim+=fa.strip()+';'
             if self.final_solution != '':
                 print('Agent '+self.name+' got the final solution!')
+                solution_to_save = []
+                for acr in sol_acronims:
+                    if acr == final_acronim:
+                        solution_to_save.extend(solutions[sol_acronims.index(acr)])
+                        break
                 break
         conn.close()
 
         file_name = None
         if self.is_load:
-            file_name = task.save_signs(self.solution)
+            file_name = task.save_signs(solution_to_save)
         if file_name:
             logging.info('Agent ' + self.name + ' finished all works')
 

@@ -17,8 +17,6 @@ blocksworld, logistics, spatial tasks</p></b> <br>
 
 benchmarks/mapddl/blocksworld/ 1 -lt classic
 
-benchmarks/mapddl/logistics/ 1 -lt classic
-
 benchmarks/simple/blocks/ 1 -lt classic
 
 benchmarks/spatial/ 1 -g
