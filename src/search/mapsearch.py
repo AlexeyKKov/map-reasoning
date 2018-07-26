@@ -31,7 +31,7 @@ class Map_search():
             self.check_map = task.goal_map.meanings[1]
         else:
             self.check_map = None
-        self.MAX_ITERATION = 5
+        self.MAX_ITERATION = 30
         logging.debug('Start: {0}'.format(self.check_pm.longstr()))
         logging.debug('Finish: {0}'.format(self.active_pm.longstr()))
 

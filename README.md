@@ -15,11 +15,11 @@ blocksworld, logistics, spatial tasks</p></b> <br>
 
 <b>Test variants:</b>
 
-benchmarks/mapddl/blocksworld/ 1 -lt classic
+../benchmarks/mapddl/blocksworld/ 1 -lt classic
 
-benchmarks/simple/blocks/ 1 -lt classic
+../benchmarks/simple/blocks/ 1 -lt classic
 
-benchmarks/spatial/ 1
+../benchmarks/spatial/ 1
 <br>
 <hr>
 <p><strong>Requirements</strong>:<br>
