@@ -141,7 +141,7 @@ if __name__ == '__main__':
     if solution is None:
         logging.warning('No solution could be found')
     else:
-        solution_file = args.benchmark.split("/")[-2] + '_task'+args.task_number + SOLUTION_FILE_SUFFIX
+        solution_file = str(args.benchmark) + '_task'+args.task_number + SOLUTION_FILE_SUFFIX
 
         with open(solution_file, 'w') as file:
             if ' && ' in solution:
