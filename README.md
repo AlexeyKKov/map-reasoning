@@ -3,7 +3,7 @@
 <p><strong>To start planner</strong>:<br>
 Start <code>mapplanner.py</code> with arguments</p>
 <ol>
-<li>Path to benchmark folder (i.e. benchmarks/mapddl/logistics/<br>
+<li>Path to benchmark folder (i.e. benchmarks/simple/blocks/<br>
 <strong>OR</strong> benchmarks/spatial/). Folder should contain task+number file and domain file.</li>
 <li>Number of a task in integer format (i.e. 1,2,3…).</li>
 <li>Logic type with key <strong><em>-lt</em></strong>. The current implementation of the planner supports only classical and spatial logic (i.e. -lt spatial, -lt classic)</li>
@@ -19,7 +19,7 @@ benchmarks/mapddl/blocksworld/ 1 -lt classic
 
 benchmarks/simple/blocks/ 1 -lt classic
 
-benchmarks/spatial/ 1 -g
+benchmarks/spatial/ 1
 <br>
 <hr>
 <p><strong>Requirements</strong>:<br>

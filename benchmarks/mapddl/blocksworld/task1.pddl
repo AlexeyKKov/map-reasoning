@@ -6,15 +6,12 @@
 	d - block
     a1 - agent
     a2 - agent
-    a3 - agent
     big - size
     small - size
-    middle - size
 )
 (:init
 	(handempty a1)
 	(handempty a2)
-	(handempty a3)
 	(clear c)
 	(clear a)
 	(clear b)
@@ -25,20 +22,19 @@
 	(ontable d)
 	(blocktype big a)
 	(blocktype small b)
-	(blocktype middle c)
+	(blocktype big c)
 	(blocktype small d)
 )
 (:goal
 	(and
 	    (handempty a1)
 	    (handempty a2)
-	    (handempty a3)
 		(on d c)
 		(on c b)
 		(on b a)
         (blocktype big a)
         (blocktype small b)
-        (blocktype middle c)
+        (blocktype big c)
         (blocktype small d)
 	)
 )
@@ -47,18 +43,13 @@
     (and
 
         (and (always (forall (?x - block)
-            (implies (or (blocktype big ?x) (blocktype small ?x)) (holding a1 ?x))))
+            (implies (blocktype big ?x)(holding a1 ?x))))
         )
         (and (always (forall (?x - block)
-            (implies (or (blocktype small ?x) (blocktype middle ?x)) (holding a2 ?x))))
+            (implies (blocktype small ?x)(holding a2 ?x))))
         )
-        (and (always (forall (?x - block)
-            (implies (or (blocktype middle ?x) (blocktype big ?x)) (holding a3 ?x))))
-        )
-
 
     )
 )
 )
-
 

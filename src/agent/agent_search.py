@@ -35,6 +35,10 @@ class Agent:
         logging.info('{0} Signs created'.format(len(task.signs)))
         return task
 
+    def gazebo_visualization(self):
+        print('This version of mapplanner does not support gazebo implementation. Use crumb_planner instead.')
+        pass
+
     def search_solution(self, port, others):
         task = self.load_sw()
         logging.info('Search start: {0}, Start time: {1}'.format(task.name, time.clock()))
@@ -93,6 +97,9 @@ class Agent:
                         break
                 break
         conn.close()
+
+        if self.gazebo:
+            self.gazebo_visualization()
 
         file_name = None
         if self.is_load:

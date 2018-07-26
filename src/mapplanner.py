@@ -3,8 +3,6 @@ import argparse
 import logging
 import os
 import json
-import re
-import time
 
 from grounding.json_grounding import Problem
 from pddl.parser import Parser

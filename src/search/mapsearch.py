@@ -31,15 +31,17 @@ class Map_search():
             self.check_map = task.goal_map.meanings[1]
         else:
             self.check_map = None
-        self.MAX_ITERATION = 30
+        self.MAX_ITERATION = 5
         logging.debug('Start: {0}'.format(self.check_pm.longstr()))
         logging.debug('Finish: {0}'.format(self.active_pm.longstr()))
 
     def search_plan(self):
         self.I_sign, self.I_obj, self.agents = self.__get_agents()
-        #logger = logging.getLogger("process-%r" % (self.I_obj.name))
         plans = self._map_iteration(self.active_pm, self.active_map, iteration=0, current_plan=[])
         return plans
+
+    def _logic_expand(self):
+        pass
 
     def _map_iteration(self, active_pm, active_map, iteration, current_plan, prev_state = []):
         logging.debug('STEP {0}:'.format(iteration))
@@ -132,6 +134,8 @@ class Map_search():
                     logging.info("len of detected plan is: {0}".format(len(plan)))
                     logging.info(plan_actions)
             else:
+                #Expanding logic
+                self._logic_expand()
                 recursive_plans = self._map_iteration(next_pm, next_map, iteration + 1, plan, prev_state)
                 if recursive_plans:
                     final_plans.extend(recursive_plans)

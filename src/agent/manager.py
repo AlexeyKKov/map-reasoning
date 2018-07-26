@@ -1,5 +1,4 @@
 import multiprocessing
-import random
 import time
 
 from agent.agent_search import Agent
@@ -87,7 +86,7 @@ class Manager:
         pool = Pool(processes=len(clagents)) # make a pool with agents
         multiple_results = [pool.apply_async(self.agent_start, (agent, port, others)) for agent, port, others in
                             clagents]
-        logging.info([res.get(timeout=1000) for res in multiple_results])
+        #logging.info([res.get(timeout=1000) for res in multiple_results])
         if self.solution:
             return self.solution
         else:
